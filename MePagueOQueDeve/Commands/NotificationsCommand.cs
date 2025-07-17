@@ -7,7 +7,7 @@ namespace MePagueOQueDeve.Commands
 {
 	public class NotificationsCommand : ModuleBase<SocketCommandContext>
 	{
-		[Command("notificacoesInfo")]
+		[Command("listanotificacoes")]
 		public async Task NotificacoesInfo()
 		{
 			var notifications = CRUD.ListNotifications(Context.Guild.Id);
@@ -129,7 +129,7 @@ namespace MePagueOQueDeve.Commands
 			await ReplyAsync("Notificação removida com sucesso!");
 		}
 
-		[Command("notificacoesOn")]
+		[Command("ativanotificacao")]
 		public async Task AtivarNotification(string idStr)
 		{
 			if (!CRUD.isUserAdmin(Context.Guild.Id, Context.User.Id))
@@ -139,14 +139,14 @@ namespace MePagueOQueDeve.Commands
 			}
 			if (string.IsNullOrEmpty(idStr))
 			{
-				await ReplyAsync($"Exemplo: !notificacoesOn < id >");
+				await ReplyAsync($"Exemplo: !ativarnotificacao < id >");
 				return;
 			}
 			int id = 0;
 			if (Int32.TryParse(idStr, out id)) { }
 			else
 			{
-				await ReplyAsync($"Exemplo: !notificacoesOn < id >");
+				await ReplyAsync($"Exemplo: !ativarnotificacao < id >");
 				return;
 			}
 
@@ -154,7 +154,7 @@ namespace MePagueOQueDeve.Commands
 			await ReplyAsync("Notificação ativada com sucesso!");
 		}
 
-		[Command("notificacoesOff")]
+		[Command("desativanotificacao")]
 		public async Task DesativarNotification(string idStr)
 		{
 			if (!CRUD.isUserAdmin(Context.Guild.Id, Context.User.Id))
@@ -164,14 +164,14 @@ namespace MePagueOQueDeve.Commands
 			}
 			if (string.IsNullOrEmpty(idStr))
 			{
-				await ReplyAsync($"Exemplo: !notificacoesOff < id >");
+				await ReplyAsync($"Exemplo: !desativarnotificacao < id >");
 				return;
 			}
 			int id = 0;
 			if (Int32.TryParse(idStr, out id)) { }
 			else
 			{
-				await ReplyAsync($"Exemplo: !notificacoesOff < id >");
+				await ReplyAsync($"Exemplo: !desativarnotificacao < id >");
 				return;
 			}
 

@@ -32,6 +32,20 @@ namespace MePagueOQueDeve.DB
 			return value;
 		}
 
+		public ulong ReadUlong(object Value)
+		{
+			ulong value = 0;
+
+			try
+			{
+				if (Value != DBNull.Value)
+					value = Convert.ToUInt64(Value);
+			}
+			catch { }
+
+			return value;
+		}
+
 		public string ReadString(object Value)
 		{
 			string value = string.Empty;

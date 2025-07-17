@@ -39,6 +39,56 @@ namespace MePagueOQueDeve.Class
 			return auth;
 		}
 
+		public static User User(ulong guildId, ulong userId)
+		{
+			User user = new User();
+			MySQL mySQL = new MySQL();
+			try
+			{
+				string sql = $@"SELECT 
+									u.name,
+									u.ingame_name,
+									u.notifications,
+									u.admin
+								FROM Users u WHERE u.id = '{userId}' AND guild_id = '{guildId}'";
+				var lst = mySQL.ReadData(sql);
+				if (lst.HasRows)
+				{
+					lst.Read();
+					user.id = userId;
+					user.guild_id = guildId;
+					user.name = mySQL.ReadString(lst.GetValue("name"));
+					user.ingame_name = mySQL.ReadString(lst.GetValue("ingame_name"));
+					user.notifications = mySQL.ReadBool(lst.GetValue("notifications"));
+					user.admin = mySQL.ReadBool(lst.GetValue("admin"));
+				}
+				lst.Close();
+			}
+			catch { }
+			mySQL.Close();
+			return user;
+		}
+		
+		public static string IngameUserName(ulong guildId, ulong userId)
+		{
+			string ingame_name = string.Empty;
+			MySQL mySQL = new MySQL();
+			try
+			{
+				string sql = $@"SELECT ingame_name FROM Users where id = '{userId}' AND guild_id = '{guildId}'";
+				var lst = mySQL.ReadData(sql);
+				if (lst.HasRows)
+				{
+					lst.Read();
+					ingame_name = mySQL.ReadString(lst.GetValue("ingame_name"));
+				}
+				lst.Close();
+			}
+			catch { }
+			mySQL.Close();
+			return ingame_name;
+		}
+
 		public static bool isUserRegistered(ulong guildId, ulong userId)
 		{
 			bool registered = false;
@@ -237,7 +287,7 @@ namespace MePagueOQueDeve.Class
 								LEFT JOIN Sounds s on s.id = nf.sound
 								WHERE CONCAT(DATE(CURDATE()), ' ', nf.time) BETWEEN DATE_SUB(NOW(), INTERVAL {GlobalSettings.NotificationTimer} MINUTE) AND DATE_ADD(NOW(), INTERVAL {GlobalSettings.NotificationTimer} MINUTE)
 								AND (nf.lastRun IS NULL OR nf.lastRun NOT BETWEEN DATE_SUB(NOW(), INTERVAL {GlobalSettings.NotificationTimer} MINUTE) AND DATE_ADD(NOW(), INTERVAL {GlobalSettings.NotificationTimer} MINUTE))
-								AND CONCAT(DATE(CURDATE()), ' ', nf.time) > NOW()";
+								AND CONCAT(DATE(CURDATE()), ' ', nf.time) > NOW() AND nf.active = 1";
 				var lst = mySQL.ReadData(sql);
 				if (lst.HasRows)
 				{
@@ -259,6 +309,24 @@ namespace MePagueOQueDeve.Class
 			mySQL.Close();
 			return list;
 
+		}
+
+		public static List<ulong> ListUsersNotify(ulong guildId, bool active)
+		{	
+			List<ulong> userIds = new List<ulong>();
+			MySQL mySQL = new MySQL();
+			try
+			{
+				string sql = $@"SELECT id FROM Users WHERE guild_id = '{guildId}' AND notifications = 1";
+				var lst = mySQL.ReadData(sql);
+				if (lst.HasRows)
+				{
+					while (lst.Read()) userIds.Add(mySQL.ReadUlong(lst.GetValue("id")));
+				}
+			}
+			catch { }
+			mySQL.Close();
+			return userIds;
 		}
 
 		public static void CreateNotification(ulong guildId, string name, TimeSpan horas, int soundId)
