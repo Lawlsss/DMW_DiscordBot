@@ -39,8 +39,15 @@ namespace MePagueOQueDeve.Class
 
 					foreach(ulong guild_id in UniqueGuilds)
 					{
-						Thread thread = new Thread(() => RunNotifications(guild_id, notifications.FindAll(x => x.guild_id == guild_id)));
-						thread.Start();
+						var GuildNotifications = notifications.FindAll(x => x.guild_id == guild_id);
+						if (GuildNotifications.Count == 0) continue;
+
+						//#TODO right now lastrun is set on voice method, should change it so it is only set after running voice and message
+						Thread threadVoice = new Thread(() => RunVoiceNotifications(guild_id, GuildNotifications));
+						threadVoice.Start();
+
+						Thread threadMessage = new Thread(() => RunMessageNotifications(guild_id, GuildNotifications));
+						threadMessage.Start();
 					}
 				}
 			}
@@ -50,7 +57,7 @@ namespace MePagueOQueDeve.Class
 			}
 		}
 
-		public async Task RunNotifications(ulong guildId, List<NotificationObj> notifications)
+		public async Task RunVoiceNotifications(ulong guildId, List<NotificationObj> notifications)
 		{
 			var guild = _client.GetGuild(guildId);
 			if (guild == null) return;
@@ -67,6 +74,36 @@ namespace MePagueOQueDeve.Class
 				}
 
 				CRUD.SetLastRunNotification(guildId, notification.id);
+			}
+		}
+
+		public async Task RunMessageNotifications(ulong guildId, List<NotificationObj> notifications)
+		{
+			var guild = _client.GetGuild(guildId);
+			if (guild == null) return;
+
+			bool notifyActive = true;
+			var userIds = CRUD.ListUsersNotify(guildId, notifyActive);
+			if (userIds.Count == 0) return;
+
+			string mentions = string.Empty;
+			foreach(ulong userId in userIds)
+			{
+				var user = guild.GetUser(userId);
+				if (user == null) continue;
+				mentions += $"<@{user.Id}>";
+			}
+			if (string.IsNullOrEmpty(mentions)) return;
+
+			//#TODO add bot-notify name to GlobalSettings, so it's configurable
+			var channel = guild.TextChannels.FirstOrDefault(x => x.Name == "bot-notify");
+
+			//#TODO add method to create channel?, or atleast notify server owner that one doesnt exist
+			if (channel == null) return;
+
+			foreach(var notification in notifications)
+			{
+				await channel.SendMessageAsync($"Atenção o {notification.name} vai começar em breve! \n ||{mentions}||");
 			}
 		}
 	}
