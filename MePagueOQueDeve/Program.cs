@@ -25,6 +25,7 @@ namespace MePagueOQueDeve
 			try
 			{
 				GlobalSettings.LoadSettings();
+				Directory.CreateDirectory(GlobalSettings.SoundPath);
 				IBot bot = serviceProvider.GetRequiredService<IBot>();
 
 				await bot.StartAsync(serviceProvider);
