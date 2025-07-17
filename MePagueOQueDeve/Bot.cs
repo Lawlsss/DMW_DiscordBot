@@ -12,14 +12,11 @@ namespace MePagueOQueDeve
 	{
 		private ServiceProvider? _serviceProvider;
 
-		private readonly IConfiguration _configuration;
 		private readonly DiscordSocketClient _client;
 		private readonly CommandService _commands;
 
-		public Bot(IConfiguration configuration)
+		public Bot()
 		{
-			_configuration = configuration;
-
 			DiscordSocketConfig config = new()
 			{
 				GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent

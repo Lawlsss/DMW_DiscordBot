@@ -18,7 +18,11 @@ namespace MePagueOQueDeve.Class
 
 		public void StartTimer()
 		{
-			_timer = new Timer(ExecuteBackgroundTask, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
+			//Making sure that the timer starts without any second's delay
+			var currentTime = DateTime.Now;
+			var nextMinute = currentTime.AddMinutes(1).AddSeconds(-currentTime.Second);
+			var timeToNextMinute = nextMinute - currentTime;
+			_timer = new Timer(ExecuteBackgroundTask, null, timeToNextMinute, TimeSpan.FromMinutes(1));
 		}
 			
 		public async void ExecuteBackgroundTask(object state)
